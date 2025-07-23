@@ -1,6 +1,42 @@
+# Protect application and system files from being viewed
 <IfModule authz_core_module>
-	Require all denied
+    Require all denied
 </IfModule>
 <IfModule !authz_core_module>
-	Deny from all
+    Deny from all
+</IfModule>
+
+# Allow access to bootswatch files
+<FilesMatch "(glyphicons-halflings-regular\.(?:eot|svg|ttf|woff|woff2)|(bootswatch|bootstrap)\.min\.css|bootstrap\.min\.js)">
+    <IfModule authz_core_module>
+        Require all granted
+    </IfModule>
+    <IfModule !authz_core_module>
+        Allow from all
+    </IfModule>
+</FilesMatch>
+
+#----------------------------------------------------------------------
+# Rewrite Rules
+#----------------------------------------------------------------------
+<IfModule mod_rewrite.c>
+    Options +FollowSymLinks
+    RewriteEngine On
+
+    # Deny direct access to framework files
+    RewriteRule ^(application|system|tests|writable)\/(.*)$ index.php/$1/$2 [L]
+
+    # Deny direct access to vendor files
+    RewriteRule ^vendor\/(.*)$ index.php/vendor/$1 [L]
+
+    # Front Controller
+    RewriteCond %{REQUEST_FILENAME} !-f
+    RewriteCond %{REQUEST_FILENAME} !-d
+    RewriteRule ^(.*)$ index.php/$1 [L,QSA]
+</IfModule>
+
+<IfModule !mod_rewrite.c>
+    <IfModule mod_alias.c>
+        RedirectMatch 302 ^/$ /index.php/
+    </IfModule>
 </IfModule>

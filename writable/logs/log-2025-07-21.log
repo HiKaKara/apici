@@ -1,0 +1,16 @@
+ERROR - 2025-07-21 13:18:30 --> mysqli_sql_exception: Table 'overtime_submissions' already exists in E:\laragon\www\apici\vendor\codeigniter4\framework\system\Database\MySQLi\Connection.php:327
+Stack trace:
+#0 E:\laragon\www\apici\vendor\codeigniter4\framework\system\Database\MySQLi\Connection.php(327): mysqli->query('CREATE TABLE `o...', 0)
+#1 E:\laragon\www\apici\vendor\codeigniter4\framework\system\Database\BaseConnection.php(738): CodeIgniter\Database\MySQLi\Connection->execute('CREATE TABLE `o...')
+#2 E:\laragon\www\apici\vendor\codeigniter4\framework\system\Database\BaseConnection.php(652): CodeIgniter\Database\BaseConnection->simpleQuery('CREATE TABLE `o...')
+#3 E:\laragon\www\apici\vendor\codeigniter4\framework\system\Database\Forge.php(570): CodeIgniter\Database\BaseConnection->query('CREATE TABLE `o...')
+#4 E:\laragon\www\apici\app\Database\Migrations\2025-07-21-061759_CreateOvertimeSubmissionsTable.php(61): CodeIgniter\Database\Forge->createTable('overtime_submis...')
+#5 E:\laragon\www\apici\vendor\codeigniter4\framework\system\Database\MigrationRunner.php(876): App\Database\Migrations\CreateOvertimeSubmissionsTable->up()
+#6 E:\laragon\www\apici\vendor\codeigniter4\framework\system\Database\MigrationRunner.php(182): CodeIgniter\Database\MigrationRunner->migrate('up', Object(stdClass))
+#7 E:\laragon\www\apici\vendor\codeigniter4\framework\system\Commands\Database\Migrate.php(85): CodeIgniter\Database\MigrationRunner->latest(NULL)
+#8 E:\laragon\www\apici\vendor\codeigniter4\framework\system\CLI\Commands.php(74): CodeIgniter\Commands\Database\Migrate->run(Array)
+#9 E:\laragon\www\apici\vendor\codeigniter4\framework\system\CLI\Console.php(47): CodeIgniter\CLI\Commands->run('migrate', Array)
+#10 E:\laragon\www\apici\vendor\codeigniter4\framework\system\Boot.php(360): CodeIgniter\CLI\Console->run()
+#11 E:\laragon\www\apici\vendor\codeigniter4\framework\system\Boot.php(104): CodeIgniter\Boot::runCommand(Object(CodeIgniter\CLI\Console))
+#12 E:\laragon\www\apici\spark(87): CodeIgniter\Boot::bootSpark(Object(Config\Paths))
+#13 {main}

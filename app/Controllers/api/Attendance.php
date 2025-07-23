@@ -5,13 +5,49 @@ namespace App\Controllers\Api;
 use CodeIgniter\RESTful\ResourceController;
 use App\Models\AttendanceModel;
 
-class Attendance extends ResourceController
-{
+class Attendance extends ResourceController{
     /**
      * Menerima data check in dari Flutter
      */
-    public function checkin()
-    {
+    // app/Controllers/Api/AttendanceController.php
+
+public function validateWfoIp(){
+    // --- Bagian Konfigurasi ---
+
+    // 1. Definisikan rentang IP yang diizinkan
+    $ipRangeStart = '10.14.72.1';
+    $ipRangeEnd   = '10.14.72.254';
+
+    // 2. Definisikan IP spesifik lainnya yang diizinkan
+    $allowedSpecificIps = [
+        '192.168.137.177'
+    ];
+
+    // --- Bagian Logika Validasi ---
+
+    // Dapatkan IP pengguna yang melakukan request
+    $requesterIp = $this->request->getIPAddress();
+
+    // Konversi IP ke format angka untuk perbandingan rentang
+    $requesterIpLong  = ip2long($requesterIp);
+    $ipRangeStartLong = ip2long($ipRangeStart);
+    $ipRangeEndLong   = ip2long($ipRangeEnd);
+
+    // Cek Kondisi 1: Apakah IP berada di dalam rentang?
+    $isInRange = ($requesterIpLong >= $ipRangeStartLong && $requesterIpLong <= $ipRangeEndLong);
+
+    // Cek Kondisi 2: Apakah IP ada di dalam daftar spesifik?
+    $isInSpecificList = in_array($requesterIp, $allowedSpecificIps);
+
+    // Jika salah satu kondisi terpenuhi, izinkan akses
+    if ($isInRange || $isInSpecificList) {
+        return $this->respond(['status' => 'ok', 'message' => 'IP valid.']);
+    }
+
+    // Jika kedua kondisi tidak terpenuhi, tolak akses
+    return $this->fail('Akses WFO hanya diizinkan dari jaringan kantor.', 403);
+}
+    public function checkin(){
         $model = new AttendanceModel();
 
         // Ambil data dari request
@@ -47,16 +83,14 @@ class Attendance extends ResourceController
 
         // Siapkan data untuk disimpan ke database
         $data = [
-            'user_id'         => $userId,
-            'attendance_date' => $today,
-            'time_in'         => date('H:i:s'),
-            'status'          => 'Hadir',
-            'location_in'     => "$latitude,$longitude",
-            'notes'           => "Shift: $shift, Alamat: $address",
-            'photo_in'        => $newName,
-            'work_type'       => 'WFO',
-        ];
-
+        'user_id' => $this->request->getPost('user_id'),
+        'latitude' => $this->request->getPost('latitude'),
+        'longitude' => $this->request->getPost('longitude'),
+        'address' => $this->request->getPost('address'),
+        'shift'   => $this->request->getPost('shift'),
+        'photo_in' => $newFileName,
+        'work_location_type' => $this->request->getPost('work_location_type'),
+    ];
         // Simpan ke database
         if ($model->insert($data)) {
             return $this->respondCreated(['status' => 201, 'message' => 'Check In berhasil direkam.']);
@@ -68,8 +102,7 @@ class Attendance extends ResourceController
     /**
      * Menerima data check out dan memperbarui record yang ada
      */
-    public function checkout()
-    {
+    public function checkout(){
         $model = new AttendanceModel();
         $userId = $this->request->getVar('user_id');
         $latitude = $this->request->getVar('latitude');
@@ -107,21 +140,27 @@ class Attendance extends ResourceController
     /**
      * Mengambil riwayat presensi untuk pengguna tertentu.
      */
-    public function history($userId = null)
-    {
-        if ($userId === null) {
-            return $this->fail('User ID harus disediakan.', 400);
-        }
+    public function history($userId)
+{
+    $model = new \App\Models\AttendanceModel(); 
 
-        $model = new AttendanceModel();
-        $history = $model->where('user_id', $userId)
-                         ->orderBy('attendance_date', 'DESC')
-                         ->findAll();
+    // Ambil tanggal dari query parameter di URL (?startDate=...&endDate=...)
+    $startDate = $this->request->getGet('startDate');
+    $endDate = $this->request->getGet('endDate');
 
-        if (empty($history)) {
-            return $this->respond([]);
-        }
+    // Bangun query dasar
+    $query = $model->where('user_id', $userId);
 
-        return $this->respond($history);
+    // Jika parameter tanggal ada, tambahkan filter ke query
+    if ($startDate && $endDate) {
+        $query->where('attendance_date >=', $startDate)
+              ->where('attendance_date <=', $endDate);
     }
+
+    // Eksekusi query dan urutkan hasilnya
+    $data = $query->orderBy('attendance_date', 'DESC')->findAll();
+
+    return $this->respond($data);
+}
+
 }

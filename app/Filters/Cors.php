@@ -11,7 +11,7 @@ class Cors implements FilterInterface
     public function before(RequestInterface $request, $arguments = null)
     {
         // Izinkan request dari semua sumber. Untuk production
-        header('Access-Control-Allow-Origin: http://192.168.137.1:8080/api/');
+        header('Access-Control-Allow-Origin: http://10.144.98.161:8080/api/');
         
         // Izinkan metode HTTP yang spesifik
         header('Access-Control-Allow-Methods: GET, POST, PUT, DELETE, OPTIONS');

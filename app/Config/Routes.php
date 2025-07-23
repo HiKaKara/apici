@@ -26,8 +26,8 @@ $routes->group('api', function ($routes) {
     $routes->post('attendance/checkin', 'Api\Attendance::checkin');
     $routes->post('attendance/checkout', 'Api\Attendance::checkout');
 
-    // Rute untuk validasi IP (pastikan controller Anda bernama `Attendance.php`)
+    // Route baru untuk lembur
+    $routes->post('overtime/submit', 'Api\OvertimeController::submit');
+    $routes->get('overtime/history/(:num)', 'Api\OvertimeController::history/$1');
     $routes->post('attendance/validate-wfo-ip', 'Api\Attendance::validateWfoIp');
-    
-
 });
