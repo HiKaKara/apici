@@ -24,14 +24,20 @@ class CreateAttendancesTable extends Migration
             'time_out' => [
                 'type' => 'TIME', 'null' => true,
             ],
-            'latitude' => [
-                'type'       => 'VARCHAR', 'constraint' => '50', 'null' => true,
+            'latitude_in' => [
+                'type' => 'VARCHAR', 'constraint' => '50', 'null' => true,
             ],
-            'longitude' => [
-                'type'       => 'VARCHAR', 'constraint' => '50', 'null' => true,
+            'longitude_in' => [
+                'type' => 'VARCHAR', 'constraint' => '50', 'null' => true,
             ],
-            'address' => [
+            'address_in' => [
                 'type' => 'TEXT', 'null' => true,
+            ],
+            'latitude_out' => [
+                'type' => 'VARCHAR', 'constraint' => '50', 'null' => true,
+            ],
+            'longitude_out' => [
+                'type' => 'VARCHAR', 'constraint' => '50', 'null' => true,
             ],
             'shift' => [
                 'type'       => 'VARCHAR', 'constraint' => '100', 'null' => true,
@@ -44,9 +50,6 @@ class CreateAttendancesTable extends Migration
             ],
             'photo_out' => [
                 'type'       => 'VARCHAR', 'constraint' => '255', 'null' => true,
-            ],
-            'status' => [
-                'type'       => 'VARCHAR', 'constraint' => '50', 'null' => true,
             ],
             'created_at' => [
                 'type' => 'DATETIME', 'null' => true,

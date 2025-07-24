@@ -2,51 +2,44 @@
 
 namespace App\Controllers\Api;
 
-use App\Models\UserModel;
 use CodeIgniter\RESTful\ResourceController;
+use App\Models\UserModel;
 
 class Auth extends ResourceController
 {
-    /**
-     * Endpoint untuk login pengguna.
-     * Menerima email dan password melalui POST request.
-     */
     public function login()
     {
+        $rules = [
+            'email'    => 'required|valid_email',
+            'password' => 'required',
+        ];
+
+        if (!$this->validate($rules)) {
+            return $this->fail($this->validator->getErrors());
+        }
+
         $model = new UserModel();
+        $user = $model->where('email', $this->request->getVar('email'))->first();
 
-        // Ambil data dari body request
-        $email = $this->request->getVar('email');
-        $password = $this->request->getVar('password');
-
-        // Cari pengguna berdasarkan email
-        $user = $model->where('email', $email)->first();
-
-        // 1. Periksa apakah pengguna ditemukan
         if (!$user) {
             return $this->failNotFound('Email tidak ditemukan.');
         }
 
-        // 2. Verifikasi password yang di-hash
-        if (!password_verify($password, $user['password'])) {
-            return $this->failUnauthorized('Password salah.');
+        // Ganti password_verify jika Anda tidak menggunakan hashing bawaan CI4
+        if (!password_verify($this->request->getVar('password'), $user['password'])) {
+            return $this->fail('Password salah.', 401);
         }
+        
+        // --- PERBAIKAN PENTING PADA STRUKTUR RESPONS ---
+        // Hapus password dari data yang akan dikirim kembali
+        unset($user['password']);
 
-        // 3. Jika login berhasil
-        // Catatan: Di aplikasi production, Anda sebaiknya menghasilkan
-        // dan mengembalikan token (seperti JWT) di sini.
-        $response = [
-            'status'   => 200,
-            'messages' => [
-                'success' => 'Login Berhasil'
-            ],
-            'user'     => [
-                'id'    => $user['id'],
-                'name'  => $user['name'],
-                'email' => $user['email']
-            ]
-        ];
-
-        return $this->respond($response);
+        return $this->respond([
+            'status'  => 200,
+            'message' => 'Login berhasil',
+            // Selalu bungkus data pengguna di dalam objek 'user'
+            'user'    => $user 
+        ]);
+        // ---------------------------------------------
     }
 }

@@ -11,52 +11,61 @@ class Attendance extends ResourceController
      * Menerima data check in dari Flutter
      */
     public function checkin()
-{
-    $model = new AttendanceModel();
-    $userId = $this->request->getVar('user_id');
-    $today = date('Y-m-d');
+    {
+        $model = new AttendanceModel();
 
-    if (empty($userId)) {
-        return $this->fail('User ID tidak boleh kosong.', 400);
+        // Ambil data dari request menggunakan getVar agar konsisten
+        $userId = $this->request->getVar('user_id');
+        $today = date('Y-m-d');
+
+        // Pastikan user_id tidak kosong
+        if (empty($userId)) {
+            return $this->fail('User ID tidak boleh kosong.', 400);
+        }
+
+        // Periksa apakah pengguna sudah check in hari ini
+        $alreadyCheckedIn = $model->where('user_id', $userId)
+                                  ->where('attendance_date', $today)
+                                  ->first();
+
+        if ($alreadyCheckedIn) {
+            return $this->fail('Anda sudah melakukan Check In hari ini.', 409); // 409 Conflict
+        }
+
+        // Ambil file foto
+        $photo = $this->request->getFile('photo_in');
+
+        // Validasi file foto
+        if (!$photo || !$photo->isValid()) {
+            $error = $photo ? $photo->getErrorString() . '(' . $photo->getError() . ')' : 'File foto tidak ditemukan.';
+            return $this->fail($error, 400);
+        }
+
+        // Pindahkan foto ke folder public
+        $newName = $photo->getRandomName();
+        $photo->move(FCPATH . 'uploads/attendances', $newName);
+
+        // Siapkan data untuk disimpan ke database
+        $data = [
+            'user_id'            => $userId,
+            'latitude'           => $this->request->getVar('latitude'),
+            'longitude'          => $this->request->getVar('longitude'),
+            'address'            => $this->request->getVar('address'),
+            'shift'              => $this->request->getVar('shift'),
+            'work_location_type' => $this->request->getVar('work_location_type'),
+            'time_in'            => date('H:i:s'),
+            'attendance_date'    => $today,
+            // --- PERBAIKAN DI SINI ---
+            'photo_in'           => $newName, // Gunakan variabel $newName yang benar
+        ];
+        
+        // Simpan ke database
+        if ($model->insert($data)) {
+            return $this->respondCreated(['status' => 201, 'message' => 'Check In berhasil direkam.']);
+        }
+
+        return $this->fail($model->errors(), 400);
     }
-
-    $alreadyCheckedIn = $model->where('user_id', $userId)
-                              ->where('attendance_date', $today)
-                              ->first();
-
-    if ($alreadyCheckedIn) {
-        return $this->fail('Anda sudah melakukan Check In hari ini.', 409);
-    }
-
-    $photo = $this->request->getFile('photo_in');
-
-    if (!$photo || !$photo->isValid()) {
-        return $this->fail('File foto tidak ditemukan atau tidak valid.', 400);
-    }
-
-    $newName = $photo->getRandomName();
-    $photo->move(FCPATH . 'uploads/attendances', $newName);
-
-    // Siapkan data untuk disimpan
-    $data = [
-        'user_id'            => $userId,
-        'latitude'           => $this->request->getVar('latitude'),
-        'longitude'          => $this->request->getVar('longitude'),
-        'address'            => $this->request->getVar('address'),
-        'shift'              => $this->request->getVar('shift'),
-        'work_location_type' => $this->request->getVar('work_location_type'),
-        'time_in'            => date('H:i:s'),
-        'attendance_date'    => $today,
-        'photo_in'           => $newName, // Menggunakan variabel $newName yang benar
-    ];
-    
-    // Simpan ke database
-    if ($model->insert($data)) {
-        return $this->respondCreated(['status' => 201, 'message' => 'Check In berhasil direkam.']);
-    }
-
-    return $this->fail($model->errors(), 400);
-}
 
     /**
      * Menerima data check out dan memperbarui record yang ada
@@ -91,6 +100,9 @@ class Attendance extends ResourceController
         $data = [
             'time_out'  => date('H:i:s'),
             'photo_out' => $newName,
+            // Tambahkan data lokasi saat checkout jika diperlukan
+            'latitude_out' => $this->request->getVar('latitude'),
+            'longitude_out' => $this->request->getVar('longitude'),
         ];
 
         if ($model->update($attendanceData['id'], $data)) {
@@ -125,7 +137,7 @@ class Attendance extends ResourceController
     {
         $ipRangeStart = '10.14.72.1';
         $ipRangeEnd   = '10.14.72.254';
-        $allowedSpecificIps = ['192.168.137.177', '::1'];
+        $allowedSpecificIps = ['192.168.137.177', '::1']; // '::1' adalah localhost untuk IPv6
         $requesterIp = $this->request->getIPAddress();
         $requesterIpLong  = ip2long($requesterIp);
         $ipRangeStartLong = ip2long($ipRangeStart);
