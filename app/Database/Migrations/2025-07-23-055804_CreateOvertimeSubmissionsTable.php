@@ -13,40 +13,40 @@ class CreateOvertimeSubmissionsTable extends Migration
                 'type'           => 'INT', 'constraint' => 11, 'unsigned' => true, 'auto_increment' => true,
             ],
             'user_id' => [
-                'type' => 'INT', 'constraint' => 11, 'unsigned' => true,
+                'type'       => 'INT', 'constraint' => 11, 'unsigned'   => true,
             ],
             'overtime_type' => [
-                'type' => 'VARCHAR', 'constraint' => '100',
+                'type'       => 'VARCHAR', 'constraint' => '100', 'null' => false,
             ],
             'start_date' => [
-                'type' => 'DATE',
+                'type' => 'DATE', 'null' => false,
             ],
             'end_date' => [
-                'type' => 'DATE',
+                'type' => 'DATE', 'null' => false,
             ],
             'start_time' => [
-                'type' => 'TIME',
+                'type' => 'TIME', 'null' => false,
             ],
             'end_time' => [
-                'type' => 'TIME',
+                'type' => 'TIME', 'null' => false,
             ],
             'coworker_id' => [
                 'type' => 'INT', 'constraint' => 11, 'unsigned' => true, 'null' => true,
             ],
             'evidence_photo' => [
-                'type' => 'VARCHAR', 'constraint' => '255',
+                'type'       => 'VARCHAR', 'constraint' => '255', 'null' => false,
             ],
             'location_address' => [
-                'type' => 'TEXT',
+                'type' => 'TEXT', 'null' => false,
             ],
             'latitude' => [
-                'type' => 'VARCHAR', 'constraint' => '50',
+                'type'       => 'VARCHAR', 'constraint' => '50', 'null' => false,
             ],
             'longitude' => [
-                'type' => 'VARCHAR', 'constraint' => '50',
+                'type'       => 'VARCHAR', 'constraint' => '50', 'null' => false,
             ],
             'status' => [
-                'type' => 'VARCHAR', 'constraint' => '50', 'default' => 'pending',
+                'type'       => 'VARCHAR', 'constraint' => '50', 'default' => 'pending',
             ],
             'created_at' => [
                 'type' => 'DATETIME', 'null' => true,
