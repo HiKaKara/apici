@@ -1,17 +1,15 @@
 <?php
 
-namespace App\Controllers\Api;
+namespace App\Controllers\api;
 
-use App\Controllers\BaseController;
-use CodeIgniter\API\ResponseTrait;
-use App\Models\UserModel; // Ganti dengan nama model user Anda
-use App\Models\AttendanceModel; // Ganti dengan nama model absensi Anda
+use CodeIgniter\RESTful\ResourceController;
+use App\Models\UserModel;
+use App\Models\AttendanceModel;
 
-class AdminController extends BaseController
+class AdminController extends ResourceController
 {
-    use ResponseTrait;
+    protected $format = 'json';
 
-    // Fungsi untuk mengambil semua data pegawai
     public function getAllEmployees()
     {
         $userModel = new UserModel();
@@ -19,43 +17,49 @@ class AdminController extends BaseController
         return $this->respond($employees);
     }
 
-    // Fungsi untuk mengubah role pegawai
-    public function updateUserRole($userId)
+    public function updateUserRole($id = null)
     {
         $userModel = new UserModel();
-        $newRole = $this->request->getJSON()->role;
+        $data = $this->request->getJSON();
 
-        if (empty($newRole)) {
-            return $this->fail('Role baru harus diisi.', 400);
+        if (!$userModel->find($id)) {
+            return $this->failNotFound('User tidak ditemukan.');
         }
 
-        $data = ['role' => $newRole];
-
-        if ($userModel->update($userId, $data)) {
-            return $this->respondUpdated(['status' => 200, 'message' => 'Role pegawai berhasil diperbarui.']);
-        } else {
-            return $this->fail($userModel->errors(), 400);
+        if ($userModel->update($id, ['role' => $data->role])) {
+            return $this->respondUpdated(['status' => 'success', 'message' => 'Role user berhasil diperbarui.']);
         }
+
+        return $this->fail($userModel->errors());
     }
 
-    // Fungsi untuk mengambil semua riwayat presensi dengan filter tanggal
-    public function getAttendanceHistory()
+    // FUNGSI BARU: Untuk mengambil data dashboard admin
+    public function dashboardSummary()
     {
-        $attendanceModel = new AttendanceModel();
-        
-        $startDate = $this->request->getGet('startDate');
-        $endDate = $this->request->getGet('endDate');
+        date_default_timezone_set('Asia/Jakarta');
+        $db = \Config\Database::connect();
 
-        $query = $attendanceModel->select('attendances.*, users.name as employee_name')
-                                 ->join('users', 'users.id = attendances.user_id');
+        // 1. Ambil Total Presensi per User
+        $attendanceCounts = $db->table('attendances')
+            ->select('user_id, users.name, COUNT(attendances.id) as total_attendance')
+            ->join('users', 'users.id = attendances.user_id')
+            ->groupBy('user_id, users.name')
+            ->orderBy('total_attendance', 'DESC')
+            ->get()->getResultArray();
 
-        if ($startDate && $endDate) {
-            $query->where('attendances.attendance_date >=', $startDate)
-                  ->where('attendances.attendance_date <=', $endDate);
-        }
+        // 2. Ambil Checklist Checkout Hari Ini
+        $today = date('Y-m-d');
+        $todayChecklists = $db->table('attendances')
+            ->select('user_id, users.name, checkout_checklist, time_out')
+            ->join('users', 'users.id = attendances.user_id')
+            ->where('attendance_date', $today)
+            ->where('checkout_checklist IS NOT NULL')
+            ->orderBy('time_out', 'DESC')
+            ->get()->getResultArray();
 
-        $history = $query->orderBy('attendances.attendance_date', 'DESC')->findAll();
-
-        return $this->respond($history);
+        return $this->respond([
+            'attendance_counts' => $attendanceCounts,
+            'today_checklists' => $todayChecklists
+        ]);
     }
 }

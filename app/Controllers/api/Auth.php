@@ -1,45 +1,47 @@
 <?php
 
-namespace App\Controllers\Api;
+namespace App\Controllers\api;
 
 use CodeIgniter\RESTful\ResourceController;
 use App\Models\UserModel;
 
 class Auth extends ResourceController
 {
+    protected $modelName = 'App\Models\UserModel';
+    protected $format    = 'json';
+
     public function login()
     {
-        $rules = [
-            'email'    => 'required|valid_email',
-            'password' => 'required',
-        ];
+        $data = $this->request->getJSON();
+        $email = $data->email ?? null;
+        $password = $data->password ?? null;
 
-        if (!$this->validate($rules)) {
-            return $this->fail($this->validator->getErrors());
+        if ($email === null || $password === null) {
+            return $this->fail('Email dan password harus diisi.', 400);
         }
 
-        $model = new UserModel();
-        $user = $model->where('email', $this->request->getVar('email'))->first();
+        // Cari pengguna berdasarkan email
+        $user = $this->model->where('email', $email)->first();
 
+        // Jika pengguna tidak ditemukan
         if (!$user) {
             return $this->failNotFound('Email tidak ditemukan.');
         }
 
-        // Ganti password_verify jika Anda tidak menggunakan hashing bawaan CI4
-        if (!password_verify($this->request->getVar('password'), $user['password'])) {
-            return $this->fail('Password salah.', 401);
+        // --- PERBAIKAN UTAMA ADA DI SINI ---
+        // Verifikasi password yang diinput dengan hash di database
+        if (!password_verify($password, $user['password'])) {
+            return $this->fail('Password yang Anda masukkan salah.', 401); // 401 Unauthorized
         }
         
-        // --- PERBAIKAN PENTING PADA STRUKTUR RESPONS ---
-        // Hapus password dari data yang akan dikirim kembali
+        // Hapus password dari data yang dikirim kembali demi keamanan
         unset($user['password']);
 
+        // Jika berhasil
         return $this->respond([
-            'status'  => 200,
+            'status' => 'success',
             'message' => 'Login berhasil',
-            // Selalu bungkus data pengguna di dalam objek 'user'
-            'user'    => $user 
-        ]);
-        // ---------------------------------------------
+            'user' => $user
+        ], 200);
     }
 }

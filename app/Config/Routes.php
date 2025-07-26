@@ -7,31 +7,30 @@ use CodeIgniter\Router\RouteCollection;
  */
 $routes->get('/', 'Home::index');
 
-// ====================================================================
-// GANTI SELURUH BLOK 'api' ANDA DENGAN YANG DI BAWAH INI
-// ====================================================================
+// Grup untuk semua rute API agar lebih terorganisir
 $routes->group('api', function ($routes) {
+    // Rute Auth
+    $routes->post('auth/login', 'api\Auth::login');
 
-    $routes->post('auth/login', 'Api\Auth::login');
-    $routes->post('users/upload/(:num)', 'Api\Users::uploadProfilePicture/$1');
-    $routes->resource('users', ['controller' => 'Api\Users']);
+    // Rute Users
+    $routes->get('users', 'api\Users::index');
+    $routes->get('users/(:num)', 'api\Users::show/$1');
+    $routes->post('users/upload/(:num)', 'api\Users::uploadProfilePicture/$1');
 
-    $routes->get('attendance/history/(:num)', 'Api\Attendance::history/$1');
-    $routes->post('attendance/checkin', 'Api\Attendance::checkin');
-    $routes->post('attendance/checkout', 'Api\Attendance::checkout');
-
-    // Route baru untuk lembur
-    $routes->post('overtime/submit', 'Api\OvertimeController::submit');
-    $routes->get('overtime/history/(:num)', 'Api\OvertimeController::history/$1');
-    $routes->post('attendance/validate-wfo-ip', 'Api\Attendance::validateWfoIp');
-});
-
-// app/Config/Routes.php
-$routes->group('api/admin', ['namespace' => 'App\Controllers\Api'], function ($routes) {
-    // Rute untuk data pegawai
-    $routes->get('employees', 'AdminController::getAllEmployees');
-    $routes->put('employees/update_role/(:num)', 'AdminController::updateUserRole/$1');
+    // Rute Attendance
+    $routes->post('attendance/checkin', 'api\Attendance::checkin');
+    $routes->post('attendance/checkout', 'api\Attendance::checkout');
+    $routes->get('attendance/history/(:num)', 'api\Attendance::history/$1');
     
-    // Rute untuk riwayat presensi
-    $routes->get('history/attendance', 'AdminController::getAttendanceHistory');
+    // PERBAIKAN UTAMA: Pastikan rute ini menggunakan metode POST
+    $routes->post('attendance/validate-wfo-ip', 'api\Attendance::validateWfoIp');
+
+    // Rute Overtime
+    $routes->post('overtime/submit', 'api\OvertimeController::submit');
+    $routes->get('overtime/history/(:num)', 'api\OvertimeController::history/$1');
+
+    // Rute Admin
+    $routes->get('admin/employees', 'api\AdminController::getAllEmployees');
+    $routes->put('admin/employees/update_role/(:num)', 'api\AdminController::updateUserRole/$1');
+    $routes->get('admin/dashboard-summary', 'api\AdminController::dashboardSummary');
 });

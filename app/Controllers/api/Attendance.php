@@ -1,153 +1,202 @@
 <?php
 
-namespace App\Controllers\Api;
+namespace App\Controllers\api;
 
 use CodeIgniter\RESTful\ResourceController;
 use App\Models\AttendanceModel;
+use Config\Services;
 
 class Attendance extends ResourceController
 {
-    /**
-     * Menerima data check in dari Flutter
-     */
-    public function checkin()
-    {
-        $model = new AttendanceModel();
+    protected $modelName = 'App\Models\AttendanceModel';
+    protected $format    = 'json';
 
-        // Ambil data dari request menggunakan getVar agar konsisten
+    // ... (Fungsi checkin, checkout, dan history tetap sama) ...
+    public function checkin(){
+        date_default_timezone_set('Asia/Jakarta');
+
         $userId = $this->request->getVar('user_id');
-        $today = date('Y-m-d');
+        $latitude = $this->request->getVar('latitude');
+        $longitude = $this->request->getVar('longitude');
+        $address = $this->request->getVar('address');
+        $shift = $this->request->getVar('shift');
+        $workLocationType = $this->request->getVar('work_location_type');
+        $photo = $this->request->getFile('photo_in');
 
-        // Pastikan user_id tidak kosong
-        if (empty($userId)) {
-            return $this->fail('User ID tidak boleh kosong.', 400);
+        $validation = Services::validation();
+        $validation->setRules([
+            'user_id' => 'required|numeric',
+            'latitude' => 'required',
+            'longitude' => 'required',
+            'address' => 'required',
+            'shift' => 'required',
+            'work_location_type' => 'required',
+            'photo_in' => 'uploaded[photo_in]|mime_in[photo_in,image/jpg,image/jpeg,image/png]|max_size[photo_in,4096]',
+        ]);
+
+        if (!$validation->withRequest($this->request)->run()) {
+            return $this->fail($validation->getErrors(), 400);
         }
 
-        // Periksa apakah pengguna sudah check in hari ini
-        $alreadyCheckedIn = $model->where('user_id', $userId)
+        $today = date('Y-m-d');
+        $existingCheckin = $this->model->where('user_id', $userId)
+                                       ->where('attendance_date', $today)
+                                       ->first();
+
+        if ($existingCheckin) {
+            return $this->fail('Anda sudah melakukan check-in hari ini.', 409);
+        }
+
+        if ($photo && $photo->isValid() && !$photo->hasMoved()) {
+            $newName = $photo->getRandomName();
+            $photo->move(ROOTPATH . 'public/uploads/attendances', $newName);
+
+            $dataToInsert = [
+                'user_id' => $userId,
+                'attendance_date' => $today,
+                'time_in' => date('H:i:s'),
+                'latitude_in' => $latitude,
+                'longitude_in' => $longitude,
+                'address_in' => $address,
+                'photo_in' => $newName,
+                'shift' => $shift,
+                'work_location_type' => $workLocationType,
+            ];
+
+            if ($this->model->insert($dataToInsert)) {
+                return $this->respondCreated([
+                    'status' => 'success',
+                    'message' => 'Check-in berhasil dicatat.'
+                ]);
+            } else {
+                return $this->fail($this->model->errors() ?? 'Gagal menyimpan data ke database.', 500);
+            }
+        }
+
+        $errorString = $photo ? $photo->getErrorString() . '(' . $photo->getError() . ')' : 'File foto tidak ditemukan.';
+        return $this->fail($errorString, 400);
+    }
+
+    public function checkout(){
+        date_default_timezone_set('Asia/Jakarta');
+
+        $userId = $this->request->getVar('user_id');
+        $latitude = $this->request->getVar('latitude');
+        $longitude = $this->request->getVar('longitude');
+        $address = $this->request->getVar('address');
+        $photo = $this->request->getFile('photo_out');
+        $checklist = $this->request->getVar('checkout_checklist');
+
+        $validation = Services::validation();
+        $validation->setRules([
+            'user_id' => 'required|numeric',
+            'latitude' => 'required',
+            'longitude' => 'required',
+            'photo_out' => 'uploaded[photo_out]|mime_in[photo_out,image/jpg,image/jpeg,image/png]|max_size[photo_out,4096]',
+            'checkout_checklist' => 'required|string'
+        ]);
+
+        if (!$validation->withRequest($this->request)->run()) {
+            return $this->fail($validation->getErrors(), 400);
+        }
+
+        $today = date('Y-m-d');
+        $attendance = $this->model->where('user_id', $userId)
                                   ->where('attendance_date', $today)
                                   ->first();
 
-        if ($alreadyCheckedIn) {
-            return $this->fail('Anda sudah melakukan Check In hari ini.', 409); // 409 Conflict
+        if (!$attendance) {
+            return $this->failNotFound('Anda belum melakukan check-in hari ini.');
         }
 
-        // Ambil file foto
-        $photo = $this->request->getFile('photo_in');
-
-        // Validasi file foto
-        if (!$photo || !$photo->isValid()) {
-            $error = $photo ? $photo->getErrorString() . '(' . $photo->getError() . ')' : 'File foto tidak ditemukan.';
-            return $this->fail($error, 400);
+        if ($attendance['time_out'] !== null) {
+            return $this->fail('Anda sudah melakukan check-out hari ini.', 409);
         }
 
-        // Pindahkan foto ke folder public
-        $newName = $photo->getRandomName();
-        $photo->move(FCPATH . 'uploads/attendances', $newName);
+        if ($photo->isValid() && !$photo->hasMoved()) {
+            $newName = $photo->getRandomName();
+            $photo->move(ROOTPATH . 'public/uploads/attendances', $newName);
 
-        // Siapkan data untuk disimpan ke database
-        $data = [
-            'user_id'            => $userId,
-            'latitude'           => $this->request->getVar('latitude'),
-            'longitude'          => $this->request->getVar('longitude'),
-            'address'            => $this->request->getVar('address'),
-            'shift'              => $this->request->getVar('shift'),
-            'work_location_type' => $this->request->getVar('work_location_type'),
-            'time_in'            => date('H:i:s'),
-            'attendance_date'    => $today,
-            // --- PERBAIKAN DI SINI ---
-            'photo_in'           => $newName, // Gunakan variabel $newName yang benar
-        ];
-        
-        // Simpan ke database
-        if ($model->insert($data)) {
-            return $this->respondCreated(['status' => 201, 'message' => 'Check In berhasil direkam.']);
+            $dataToUpdate = [
+                'time_out' => date('H:i:s'),
+                'latitude_out' => $latitude,
+                'longitude_out' => $longitude,
+                'photo_out' => $newName,
+                'checkout_checklist' => $checklist
+            ];
+
+            if (!empty($address)) {
+                $dataToUpdate['address_out'] = $address;
+            }
+
+            if ($this->model->update($attendance['id'], $dataToUpdate)) {
+                return $this->respond([
+                    'status' => 'success',
+                    'message' => 'Check-out berhasil.'
+                ]);
+            } else {
+                return $this->fail($this->model->errors() ?? 'Gagal memperbarui data di database.', 500);
+            }
         }
 
-        return $this->fail($model->errors(), 400);
+        return $this->fail($photo->getErrorString() . '(' . $photo->getError() . ')', 400);
     }
 
-    /**
-     * Menerima data check out dan memperbarui record yang ada
-     */
-    public function checkout()
-    {
-        $model = new AttendanceModel();
-        $userId = $this->request->getVar('user_id');
-        $photo = $this->request->getFile('photo_out');
-
-        // Cari data check-in hari ini
-        $attendanceData = $model->where('user_id', $userId)
-                                ->where('attendance_date', date('Y-m-d'))
-                                ->first();
-
-        if (!$attendanceData) {
-            return $this->failNotFound('Data Check In untuk hari ini tidak ditemukan.');
-        }
-
-        // Cek apakah sudah check out sebelumnya
-        if (!empty($attendanceData['time_out'])) {
-            return $this->fail('Anda sudah melakukan Check Out hari ini.', 409);
-        }
-
-        if (!$photo || !$photo->isValid() || $photo->hasMoved()) {
-            return $this->fail('File foto tidak ditemukan atau tidak valid.', 400);
-        }
-
-        $newName = $photo->getRandomName();
-        $photo->move(FCPATH . 'uploads/attendances', $newName);
-
-        $data = [
-            'time_out'  => date('H:i:s'),
-            'photo_out' => $newName,
-            // Tambahkan data lokasi saat checkout jika diperlukan
-            'latitude_out' => $this->request->getVar('latitude'),
-            'longitude_out' => $this->request->getVar('longitude'),
-        ];
-
-        if ($model->update($attendanceData['id'], $data)) {
-            return $this->respondUpdated(['status' => 200, 'message' => 'Check Out berhasil direkam.']);
-        }
-
-        return $this->fail($model->errors(), 400);
-    }
-
-    /**
-     * Mengambil riwayat presensi untuk pengguna tertentu.
-     */
     public function history($userId)
     {
-        $model = new AttendanceModel();
-
         $startDate = $this->request->getGet('startDate');
         $endDate = $this->request->getGet('endDate');
 
-        $query = $model->where('user_id', $userId);
+        $builder = $this->model->where('user_id', $userId);
 
         if ($startDate && $endDate) {
-            $query->where('attendance_date >=', $startDate)
-                  ->where('attendance_date <=', $endDate);
+            $builder->where('attendance_date >=', $startDate)
+                    ->where('attendance_date <=', $endDate);
+        } else {
+            $builder->where('MONTH(attendance_date)', date('m'))
+                    ->where('YEAR(attendance_date)', date('Y'));
         }
 
-        $data = $query->orderBy('attendance_date', 'DESC')->findAll();
-        return $this->respond($data);
+        $history = $builder->orderBy('attendance_date', 'DESC')->findAll();
+
+        if (empty($history)) {
+            return $this->respond([]);
+        }
+
+        return $this->respond($history);
     }
 
     public function validateWfoIp()
     {
-        $ipRangeStart = '10.14.72.1';
-        $ipRangeEnd   = '10.14.72.254';
-        $allowedSpecificIps = ['192.168.137.177', '::1']; // '::1' adalah localhost untuk IPv6
-        $requesterIp = $this->request->getIPAddress();
-        $requesterIpLong  = ip2long($requesterIp);
-        $ipRangeStartLong = ip2long($ipRangeStart);
-        $ipRangeEndLong   = ip2long($ipRangeEnd);
-        $isInRange = ($requesterIpLong >= $ipRangeStartLong && $requesterIpLong <= $ipRangeEndLong);
-        $isInSpecificList = in_array($requesterIp, $allowedSpecificIps);
+        $allowedIps = config('Office')->allowedIps;
+        $userIp = $this->request->getIPAddress();
 
-        if ($isInRange || $isInSpecificList) {
-            return $this->respond(['status' => 'ok', 'message' => 'IP valid.']);
+        foreach ($allowedIps as $allowedIp) {
+            if ($this->ip_in_range($userIp, $allowedIp)) {
+                return $this->respond(['status' => 'success', 'message' => 'IP terverifikasi.'], 200);
+            }
         }
-        return $this->fail('Akses WFO hanya diizinkan dari jaringan kantor.', 403);
+
+        return $this->fail('Akses ditolak. Anda tidak berada di jaringan kantor yang diizinkan.', 403);
+    }
+
+    /**
+     * Helper function to check if an IP is within a CIDR range.
+     */
+    private function ip_in_range($ip, $range): bool
+    {
+        if (strpos($range, '/') === false) {
+            // This is a single IP, not a range
+            return $ip === $range;
+        }
+
+        // It's a CIDR range
+        list($subnet, $bits) = explode('/', $range);
+        $ip = ip2long($ip);
+        $subnet = ip2long($subnet);
+        $mask = -1 << (32 - $bits);
+        $subnet &= $mask; // Discard host bits
+
+        return ($ip & $mask) === $subnet;
     }
 }
