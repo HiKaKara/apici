@@ -11,7 +11,7 @@ class Attendance extends ResourceController
     protected $modelName = 'App\Models\AttendanceModel';
     protected $format    = 'json';
 
-    // ... (Fungsi checkin, checkout, dan history tetap sama) ...
+
     public function checkin(){
         date_default_timezone_set('Asia/Jakarta');
 

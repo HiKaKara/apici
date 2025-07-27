@@ -53,3 +53,83 @@ in APPPATH\Controllers\api\AdminController.php on line 16.
  6 SYSTEMPATH\Boot.php(67): CodeIgniter\Boot::runCodeIgniter(Object(CodeIgniter\CodeIgniter))
  7 FCPATH\index.php(59): CodeIgniter\Boot::bootWeb(Object(Config\Paths))
  8 SYSTEMPATH\rewrite.php(44): require_once('E:\\laragon\\www\\apici\\public\\index.php')
+CRITICAL - 2025-07-27 19:31:39 --> Error: Class "App\Controllers\api\OvertimeSubmissionModel" not found
+[Method: GET, Route: api/admin/overtime-history]
+in APPPATH\Controllers\api\AdminController.php on line 90.
+ 1 SYSTEMPATH\CodeIgniter.php(933): App\Controllers\api\AdminController->getAllOvertimeHistory()
+ 2 SYSTEMPATH\CodeIgniter.php(507): CodeIgniter\CodeIgniter->runController(Object(App\Controllers\api\AdminController))
+ 3 SYSTEMPATH\CodeIgniter.php(354): CodeIgniter\CodeIgniter->handleRequest(null, Object(Config\Cache), false)
+ 4 SYSTEMPATH\Boot.php(334): CodeIgniter\CodeIgniter->run()
+ 5 SYSTEMPATH\Boot.php(67): CodeIgniter\Boot::runCodeIgniter(Object(CodeIgniter\CodeIgniter))
+ 6 FCPATH\index.php(59): CodeIgniter\Boot::bootWeb(Object(Config\Paths))
+ 7 SYSTEMPATH\rewrite.php(44): require_once('E:\\laragon\\www\\apici\\public\\index.php')
+CRITICAL - 2025-07-27 19:32:05 --> Error: Class "App\Controllers\api\OvertimeSubmissionModel" not found
+[Method: GET, Route: api/admin/overtime-history]
+in APPPATH\Controllers\api\AdminController.php on line 90.
+ 1 SYSTEMPATH\CodeIgniter.php(933): App\Controllers\api\AdminController->getAllOvertimeHistory()
+ 2 SYSTEMPATH\CodeIgniter.php(507): CodeIgniter\CodeIgniter->runController(Object(App\Controllers\api\AdminController))
+ 3 SYSTEMPATH\CodeIgniter.php(354): CodeIgniter\CodeIgniter->handleRequest(null, Object(Config\Cache), false)
+ 4 SYSTEMPATH\Boot.php(334): CodeIgniter\CodeIgniter->run()
+ 5 SYSTEMPATH\Boot.php(67): CodeIgniter\Boot::runCodeIgniter(Object(CodeIgniter\CodeIgniter))
+ 6 FCPATH\index.php(59): CodeIgniter\Boot::bootWeb(Object(Config\Paths))
+ 7 SYSTEMPATH\rewrite.php(44): require_once('E:\\laragon\\www\\apici\\public\\index.php')
+CRITICAL - 2025-07-27 19:37:22 --> Error: Class "App\Controllers\api\OvertimeSubmissionModel" not found
+[Method: GET, Route: api/admin/overtime-history]
+in APPPATH\Controllers\api\AdminController.php on line 90.
+ 1 SYSTEMPATH\CodeIgniter.php(933): App\Controllers\api\AdminController->getAllOvertimeHistory()
+ 2 SYSTEMPATH\CodeIgniter.php(507): CodeIgniter\CodeIgniter->runController(Object(App\Controllers\api\AdminController))
+ 3 SYSTEMPATH\CodeIgniter.php(354): CodeIgniter\CodeIgniter->handleRequest(null, Object(Config\Cache), false)
+ 4 SYSTEMPATH\Boot.php(334): CodeIgniter\CodeIgniter->run()
+ 5 SYSTEMPATH\Boot.php(67): CodeIgniter\Boot::runCodeIgniter(Object(CodeIgniter\CodeIgniter))
+ 6 FCPATH\index.php(59): CodeIgniter\Boot::bootWeb(Object(Config\Paths))
+ 7 SYSTEMPATH\rewrite.php(44): require_once('E:\\laragon\\www\\apici\\public\\index.php')
+CRITICAL - 2025-07-27 19:43:19 --> Error: Class "App\Controllers\api\OvertimeSubmissionModel" not found
+[Method: GET, Route: api/admin/overtime-history]
+in APPPATH\Controllers\api\AdminController.php on line 90.
+ 1 SYSTEMPATH\CodeIgniter.php(933): App\Controllers\api\AdminController->getAllOvertimeHistory()
+ 2 SYSTEMPATH\CodeIgniter.php(507): CodeIgniter\CodeIgniter->runController(Object(App\Controllers\api\AdminController))
+ 3 SYSTEMPATH\CodeIgniter.php(354): CodeIgniter\CodeIgniter->handleRequest(null, Object(Config\Cache), false)
+ 4 SYSTEMPATH\Boot.php(334): CodeIgniter\CodeIgniter->run()
+ 5 SYSTEMPATH\Boot.php(67): CodeIgniter\Boot::runCodeIgniter(Object(CodeIgniter\CodeIgniter))
+ 6 FCPATH\index.php(59): CodeIgniter\Boot::bootWeb(Object(Config\Paths))
+ 7 SYSTEMPATH\rewrite.php(44): require_once('E:\\laragon\\www\\apici\\public\\index.php')
+CRITICAL - 2025-07-27 19:43:35 --> Error: Class "App\Controllers\api\OvertimeSubmissionModel" not found
+[Method: GET, Route: api/admin/overtime-history]
+in APPPATH\Controllers\api\AdminController.php on line 90.
+ 1 SYSTEMPATH\CodeIgniter.php(933): App\Controllers\api\AdminController->getAllOvertimeHistory()
+ 2 SYSTEMPATH\CodeIgniter.php(507): CodeIgniter\CodeIgniter->runController(Object(App\Controllers\api\AdminController))
+ 3 SYSTEMPATH\CodeIgniter.php(354): CodeIgniter\CodeIgniter->handleRequest(null, Object(Config\Cache), false)
+ 4 SYSTEMPATH\Boot.php(334): CodeIgniter\CodeIgniter->run()
+ 5 SYSTEMPATH\Boot.php(67): CodeIgniter\Boot::runCodeIgniter(Object(CodeIgniter\CodeIgniter))
+ 6 FCPATH\index.php(59): CodeIgniter\Boot::bootWeb(Object(Config\Paths))
+ 7 SYSTEMPATH\rewrite.php(44): require_once('E:\\laragon\\www\\apici\\public\\index.php')
+CRITICAL - 2025-07-27 19:46:47 --> Error: Class "App\Controllers\api\OvertimeSubmissionModel" not found
+[Method: GET, Route: api/admin/overtime-history]
+in APPPATH\Controllers\api\AdminController.php on line 90.
+ 1 SYSTEMPATH\CodeIgniter.php(933): App\Controllers\api\AdminController->getAllOvertimeHistory()
+ 2 SYSTEMPATH\CodeIgniter.php(507): CodeIgniter\CodeIgniter->runController(Object(App\Controllers\api\AdminController))
+ 3 SYSTEMPATH\CodeIgniter.php(354): CodeIgniter\CodeIgniter->handleRequest(null, Object(Config\Cache), false)
+ 4 SYSTEMPATH\Boot.php(334): CodeIgniter\CodeIgniter->run()
+ 5 SYSTEMPATH\Boot.php(67): CodeIgniter\Boot::runCodeIgniter(Object(CodeIgniter\CodeIgniter))
+ 6 FCPATH\index.php(59): CodeIgniter\Boot::bootWeb(Object(Config\Paths))
+ 7 SYSTEMPATH\rewrite.php(44): require_once('E:\\laragon\\www\\apici\\public\\index.php')
+CRITICAL - 2025-07-27 19:48:31 --> Error: Class "App\Controllers\api\OvertimeSubmissionModel" not found
+[Method: GET, Route: api/admin/overtime-history]
+in APPPATH\Controllers\api\AdminController.php on line 90.
+ 1 SYSTEMPATH\CodeIgniter.php(933): App\Controllers\api\AdminController->getAllOvertimeHistory()
+ 2 SYSTEMPATH\CodeIgniter.php(507): CodeIgniter\CodeIgniter->runController(Object(App\Controllers\api\AdminController))
+ 3 SYSTEMPATH\CodeIgniter.php(354): CodeIgniter\CodeIgniter->handleRequest(null, Object(Config\Cache), false)
+ 4 SYSTEMPATH\Boot.php(334): CodeIgniter\CodeIgniter->run()
+ 5 SYSTEMPATH\Boot.php(67): CodeIgniter\Boot::runCodeIgniter(Object(CodeIgniter\CodeIgniter))
+ 6 FCPATH\index.php(59): CodeIgniter\Boot::bootWeb(Object(Config\Paths))
+ 7 SYSTEMPATH\rewrite.php(44): require_once('E:\\laragon\\www\\apici\\public\\index.php')
+CRITICAL - 2025-07-27 19:51:43 --> Error: Class "App\Controllers\api\OvertimeSubmissionModel" not found
+[Method: GET, Route: api/admin/overtime-history]
+in APPPATH\Controllers\api\AdminController.php on line 90.
+ 1 SYSTEMPATH\CodeIgniter.php(933): App\Controllers\api\AdminController->getAllOvertimeHistory()
+ 2 SYSTEMPATH\CodeIgniter.php(507): CodeIgniter\CodeIgniter->runController(Object(App\Controllers\api\AdminController))
+ 3 SYSTEMPATH\CodeIgniter.php(354): CodeIgniter\CodeIgniter->handleRequest(null, Object(Config\Cache), false)
+ 4 SYSTEMPATH\Boot.php(334): CodeIgniter\CodeIgniter->run()
+ 5 SYSTEMPATH\Boot.php(67): CodeIgniter\Boot::runCodeIgniter(Object(CodeIgniter\CodeIgniter))
+ 6 FCPATH\index.php(59): CodeIgniter\Boot::bootWeb(Object(Config\Paths))
+ 7 SYSTEMPATH\rewrite.php(44): require_once('E:\\laragon\\www\\apici\\public\\index.php')
