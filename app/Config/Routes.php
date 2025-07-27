@@ -22,7 +22,6 @@ $routes->group('api', function ($routes) {
     $routes->post('attendance/checkout', 'api\Attendance::checkout');
     $routes->get('attendance/history/(:num)', 'api\Attendance::history/$1');
     
-    // PERBAIKAN UTAMA: Pastikan rute ini menggunakan metode POST
     $routes->post('attendance/validate-wfo-ip', 'api\Attendance::validateWfoIp');
 
     // Rute Overtime
@@ -33,4 +32,9 @@ $routes->group('api', function ($routes) {
     $routes->get('admin/employees', 'api\AdminController::getAllEmployees');
     $routes->put('admin/employees/update_role/(:num)', 'api\AdminController::updateUserRole/$1');
     $routes->get('admin/dashboard-summary', 'api\AdminController::dashboardSummary');
+    $routes->post('admin/employees', 'api\AdminController::createEmployee'); // Tambah Pegawai
+    $routes->put('admin/employees/(:num)', 'api\AdminController::updateEmployee/$1'); // Edit Pegawai
+    $routes->get('admin/attendance-history', 'api\AdminController::getAllAttendanceHistory'); // Riwayat Absensi Semua User
+    $routes->get('admin/overtime-history', 'api\AdminController::getAllOvertimeHistory'); // Riwayat Lembur Semua User
+    
 });
