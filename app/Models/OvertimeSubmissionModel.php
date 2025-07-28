@@ -25,6 +25,7 @@ class OvertimeSubmissionModel extends Model
         'latitude',
         'longitude',
         'status',
+        'keterangan',
     ];
 
     // Dates

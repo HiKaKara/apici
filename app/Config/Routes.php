@@ -36,5 +36,5 @@ $routes->group('api', function ($routes) {
     $routes->put('admin/employees/(:num)', 'api\AdminController::updateEmployee/$1'); // Edit Pegawai
     $routes->get('admin/attendance-history', 'api\AdminController::getAllAttendanceHistory'); // Riwayat Absensi Semua User
     $routes->get('admin/overtime-history', 'api\AdminController::getAllOvertimeHistory'); // Riwayat Lembur Semua User
-    
+    $routes->put('overtime/status/(:num)', 'AdminController::updateOvertimeStatus/$1'); // Update Status Lembur
 });

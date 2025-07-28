@@ -52,7 +52,7 @@ class AdminController extends ResourceController{
         return $this->fail($userModel->errors());
     }
 
-   public function createEmployee(){
+    public function createEmployee(){
         $model = new UserModel();
 
         // 1. Ambil password asli dari request
@@ -134,5 +134,24 @@ class AdminController extends ResourceController{
             'attendance_counts' => $attendanceCounts,
             'today_checklists' => $todayChecklists
         ]);
+    }
+    public function updateOvertimeStatus($id = null){
+    $model = new OvertimeSubmissionModel();
+    $overtime = $model->find($id);
+
+    if (!$overtime) {
+        return $this->failNotFound('Data lembur tidak ditemukan.');
+    }
+    $newStatus = $this->request->getJsonVar('status');
+
+    if (!in_array($newStatus, ['approved', 'rejected'])) {
+        return $this->fail('Status tidak valid. Hanya boleh "approved" atau "rejected".', 400);
+    }
+
+    if ($model->update($id, ['status' => $newStatus])) {
+        return $this->respondUpdated(['status' => 'success', 'message' => 'Status lembur berhasil diperbarui.']);
+    }
+
+    return $this->fail('Gagal memperbarui status lembur.', 500);
     }
 }

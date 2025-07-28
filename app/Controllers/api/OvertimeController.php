@@ -36,6 +36,8 @@ class OvertimeController extends BaseController
             'location_address' => $this->request->getPost('location_address'),
             'latitude'         => $this->request->getPost('latitude'),
             'longitude'        => $this->request->getPost('longitude'),
+            'status'            => 'pending',
+            'keterangan'        => $this->request->getPost('keterangan'),
         ];
 
         // 5. Simpan ke database menggunakan Model
