@@ -32,7 +32,7 @@ class OvertimeController extends BaseController
             'start_time'       => $this->request->getPost('start_time'),
             'end_time'         => $this->request->getPost('end_time'),
             'coworker_id'      => $this->request->getPost('coworker_id') ?: null,
-            'evidence_photo'   => $newFileName, // Simpan nama file baru
+            'evidence_photo'   => $newFileName,
             'location_address' => $this->request->getPost('location_address'),
             'latitude'         => $this->request->getPost('latitude'),
             'longitude'        => $this->request->getPost('longitude'),

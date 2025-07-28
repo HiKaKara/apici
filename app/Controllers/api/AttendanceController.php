@@ -142,12 +142,14 @@ class Attendance extends ResourceController
         return $this->fail($photo->getErrorString() . '(' . $photo->getError() . ')', 400);
     }
 
-    public function history($userId)
-    {
+    public function history($userId){
         $startDate = $this->request->getGet('startDate');
         $endDate = $this->request->getGet('endDate');
 
-        $builder = $this->model->where('user_id', $userId);
+        $builder = $this->model
+            ->select('attendances.id, attendances.attendance_date, shifts.name as shift, attendances.time_in, attendances.time_out, attendances.status, attendances.work_location_type, attendances.photo_in, attendances.photo_out, attendances.latitude_in, attendances.longitude_in, attendances.checkout_checklist') // 1. Menambahkan semua kolom, termasuk checklist
+            ->join('shifts', 'shifts.id = attendances.shift_id', 'left') // 2. Menggabungkan dengan tabel shift
+            ->where('attendances.user_id', $userId);
 
         if ($startDate && $endDate) {
             $builder->where('attendance_date >=', $startDate)

@@ -52,30 +52,41 @@ class AdminController extends ResourceController{
         return $this->fail($userModel->errors());
     }
 
-    public function createEmployee(){
-        $userModel = new UserModel();
-        $data = $this->request->getJSON(true);
+   public function createEmployee(){
+        $model = new UserModel();
 
-        // Validasi
-        $rules = [
-            'name' => 'required',
-            'email' => 'required|valid_email|is_unique[users.email]',
-            'password' => 'required|min_length[6]',
-            'role' => 'required|in_list[pegawai,admin]'
+        // 1. Ambil password asli dari request
+        $plainPassword = $this->request->getVar('password');
+
+        // 2. Lakukan validasi sederhana
+        if (!$this->request->getVar('name') || !$this->request->getVar('username') || empty($plainPassword)) {
+            return $this->fail('Nama, username, dan password tidak boleh kosong', 400);
+        }
+
+        // 3. Enkripsi password menggunakan BCRYPT
+        $hashedPassword = password_hash($plainPassword, PASSWORD_BCRYPT);
+
+        // 4. Siapkan data untuk dimasukkan ke database
+        $data = [
+            'name'     => $this->request->getVar('name'),
+            'username' => $this->request->getVar('username'),
+            'password' => $hashedPassword, // <-- Gunakan password yang sudah di-hash
+            'role'     => $this->request->getVar('role') ?? 'pegawai' // Default role jika tidak diisi
         ];
 
-        if (!$this->validate($rules)) {
-            return $this->fail($this->validator->getErrors(), 400);
+        // 5. Simpan data ke database
+        if ($model->insert($data)) {
+            $response = [
+                'status'   => 201,
+                'error'    => null,
+                'messages' => [
+                    'success' => 'Pegawai berhasil ditambahkan'
+                ]
+            ];
+            return $this->respondCreated($response);
+        } else {
+            return $this->fail('Gagal menambahkan pegawai', 500);
         }
-
-        // Hash password sebelum disimpan
-        $data['password'] = password_hash($data['password'], PASSWORD_BCRYPT);
-
-        if ($userModel->insert($data)) {
-            return $this->respondCreated(['status' => 'success', 'message' => 'Pegawai baru berhasil ditambahkan.']);
-        }
-
-        return $this->fail('Gagal menambahkan pegawai.', 500);
     }
     public function getAllAttendanceHistory(){
         $model = new AttendanceModel();

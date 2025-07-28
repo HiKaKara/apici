@@ -133,3 +133,13 @@ in APPPATH\Controllers\api\AdminController.php on line 90.
  5 SYSTEMPATH\Boot.php(67): CodeIgniter\Boot::runCodeIgniter(Object(CodeIgniter\CodeIgniter))
  6 FCPATH\index.php(59): CodeIgniter\Boot::bootWeb(Object(Config\Paths))
  7 SYSTEMPATH\rewrite.php(44): require_once('E:\\laragon\\www\\apici\\public\\index.php')
+CRITICAL - 2025-07-27 20:06:07 --> Error: Class "App\Controllers\api\EmployeeModel" not found
+[Method: POST, Route: api/admin/employees]
+in APPPATH\Controllers\api\AdminController.php on line 56.
+ 1 SYSTEMPATH\CodeIgniter.php(933): App\Controllers\api\AdminController->createEmployee()
+ 2 SYSTEMPATH\CodeIgniter.php(507): CodeIgniter\CodeIgniter->runController(Object(App\Controllers\api\AdminController))
+ 3 SYSTEMPATH\CodeIgniter.php(354): CodeIgniter\CodeIgniter->handleRequest(null, Object(Config\Cache), false)
+ 4 SYSTEMPATH\Boot.php(334): CodeIgniter\CodeIgniter->run()
+ 5 SYSTEMPATH\Boot.php(67): CodeIgniter\Boot::runCodeIgniter(Object(CodeIgniter\CodeIgniter))
+ 6 FCPATH\index.php(59): CodeIgniter\Boot::bootWeb(Object(Config\Paths))
+ 7 SYSTEMPATH\rewrite.php(44): require_once('E:\\laragon\\www\\apici\\public\\index.php')
