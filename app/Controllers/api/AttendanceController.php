@@ -5,8 +5,10 @@ namespace App\Controllers\api;
 use CodeIgniter\RESTful\ResourceController;
 use App\Models\AttendanceModel;
 use Config\Services;
+use App\Controllers\BaseController;
+use CodeIgniter\API\ResponseTrait;
 
-class Attendance extends ResourceController
+class AttendanceController extends ResourceController
 {
     protected $modelName = 'App\Models\AttendanceModel';
     protected $format    = 'json';
@@ -142,27 +144,31 @@ class Attendance extends ResourceController
         return $this->fail($photo->getErrorString() . '(' . $photo->getError() . ')', 400);
     }
 
-    public function history($userId){
+    public function history($userId)
+    {
+        $model = new AttendanceModel();
         $startDate = $this->request->getGet('startDate');
         $endDate = $this->request->getGet('endDate');
 
+        // Kueri yang sudah diperbaiki tanpa JOIN dan tanpa kolom 'status'
         $builder = $this->model
-            ->select('attendances.id, attendances.attendance_date, shifts.name as shift, attendances.time_in, attendances.time_out, attendances.status, attendances.work_location_type, attendances.photo_in, attendances.photo_out, attendances.latitude_in, attendances.longitude_in, attendances.checkout_checklist') // 1. Menambahkan semua kolom, termasuk checklist
-            ->join('shifts', 'shifts.id = attendances.shift_id', 'left') // 2. Menggabungkan dengan tabel shift
-            ->where('attendances.user_id', $userId);
+            ->select('id, user_id, attendance_date, time_in, time_out, latitude_in, longitude_in, address_in, latitude_out, longitude_out, address_out, shift, work_location_type, photo_in, photo_out, checkout_checklist')
+            ->where('user_id', $userId);
 
         if ($startDate && $endDate) {
             $builder->where('attendance_date >=', $startDate)
                     ->where('attendance_date <=', $endDate);
         } else {
-            $builder->where('MONTH(attendance_date)', date('m'))
-                    ->where('YEAR(attendance_date)', date('Y'));
+            $firstDayOfMonth = date('Y-m-01');
+            $lastDayOfMonth = date('Y-m-t');
+            $builder->where('attendance_date >=', $firstDayOfMonth)
+                    ->where('attendance_date <=', $lastDayOfMonth);
         }
 
         $history = $builder->orderBy('attendance_date', 'DESC')->findAll();
 
-        if (empty($history)) {
-            return $this->respond([]);
+        if (!$history) {
+            $history = [];
         }
 
         return $this->respond($history);

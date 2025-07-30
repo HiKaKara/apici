@@ -18,11 +18,11 @@ $routes->group('api', function ($routes) {
     $routes->post('users/upload/(:num)', 'api\Users::uploadProfilePicture/$1');
 
     // Rute Attendance
-    $routes->post('attendance/checkin', 'api\Attendance::checkin');
-    $routes->post('attendance/checkout', 'api\Attendance::checkout');
-    $routes->get('attendance/history/(:num)', 'api\Attendance::history/$1');
+    $routes->post('attendance/checkin', 'api\AttendanceController::checkin');
+    $routes->post('attendance/checkout', 'api\AttendanceController::checkout');
+    $routes->get('attendance/history/(:num)', 'api\AttendanceController::history/$1');
     
-    $routes->post('attendance/validate-wfo-ip', 'api\Attendance::validateWfoIp');
+    $routes->post('attendance/validate-wfo-ip', 'api\AttendanceController::validateWfoIp');
 
     // Rute Overtime
     $routes->post('overtime/submit', 'api\OvertimeController::submit');
@@ -36,5 +36,5 @@ $routes->group('api', function ($routes) {
     $routes->put('admin/employees/(:num)', 'api\AdminController::updateEmployee/$1'); // Edit Pegawai
     $routes->get('admin/attendance-history', 'api\AdminController::getAllAttendanceHistory'); // Riwayat Absensi Semua User
     $routes->get('admin/overtime-history', 'api\AdminController::getAllOvertimeHistory'); // Riwayat Lembur Semua User
-    $routes->put('overtime/status/(:num)', 'AdminController::updateOvertimeStatus/$1'); // Update Status Lembur
+    $routes->put('overtime/status/(:num)', 'api\AdminController::updateOvertimeStatus/$1'); // Update Status Lembur
 });
