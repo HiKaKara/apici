@@ -29,7 +29,7 @@ class AdminController extends ResourceController{
         // Validasi
         $rules = [
             'name' => 'required',
-            'role' => 'required|in_list[pegawai,admin]'
+            'role' => 'required|in_list[admin,pegawai]'
         ];
 
         // Password hanya diupdate jika diisi
@@ -53,40 +53,47 @@ class AdminController extends ResourceController{
     }
 
     public function createEmployee(){
-        $model = new UserModel();
+    $model = new UserModel();
 
-        // 1. Ambil password asli dari request
-        $plainPassword = $this->request->getVar('password');
+    // 1. Ambil data JSON dari request.
+    // Menggunakan getJSON(true) untuk mendapatkan array asosiatif.
+    $data = $this->request->getJSON(true);
+    
+    if (empty($data)) {
+        return $this->fail('Data JSON yang dikirim kosong atau tidak valid.', 400);
+    }
 
-        // 2. Lakukan validasi sederhana
-        if (!$this->request->getVar('name') || !$this->request->getVar('username') || empty($plainPassword)) {
-            return $this->fail('Nama, username, dan password tidak boleh kosong', 400);
+    // 2. Definisikan aturan validasi.
+    $rules = [
+        'name'     => 'required',
+        'email'    => 'required|valid_email|is_unique[users.email]',
+        'password' => 'required|min_length[6]',
+        'role'     => 'required|in_list[admin,pegawai]',
+        'position' => 'required',
+    ];
+
+    // 3. Lakukan validasi terhadap array data menggunakan validateData().
+    if (!$this->validateData($data, $rules)) {
+            $errors = $this->validator->getErrors();
+            $errorMessage = array_shift($errors);
+            return $this->fail($errorMessage, 400);
         }
 
-        // 3. Enkripsi password menggunakan BCRYPT
-        $hashedPassword = password_hash($plainPassword, PASSWORD_BCRYPT);
-
-        // 4. Siapkan data untuk dimasukkan ke database
-        $data = [
-            'name'     => $this->request->getVar('name'),
-            'username' => $this->request->getVar('username'),
-            'password' => $hashedPassword, // <-- Gunakan password yang sudah di-hash
-            'role'     => $this->request->getVar('role') ?? 'pegawai' // Default role jika tidak diisi
-        ];
-
-        // 5. Simpan data ke database
-        if ($model->insert($data)) {
-            $response = [
-                'status'   => 201,
-                'error'    => null,
-                'messages' => [
-                    'success' => 'Pegawai berhasil ditambahkan'
-                ]
-            ];
-            return $this->respondCreated($response);
-        } else {
-            return $this->fail('Gagal menambahkan pegawai', 500);
+    if ($model->insert($data)) {
+            // PERBAIKAN 3: Standardisasi pesan sukses.
+            return $this->respondCreated([
+                'status'  => 201,
+                'message' => 'Pegawai berhasil ditambahkan'
+            ]);
         }
+
+    // 4. Simpan data ke database.
+    if ($model->insert($data)) {
+        return $this->respondCreated(['status' => 201, 'messages' => ['success' => 'Pegawai berhasil ditambahkan']]);
+    }
+
+    // Jika insert gagal, kembalikan error dari model untuk pesan yang lebih spesifik.
+    return $this->fail($model->errors() ?? 'Gagal menyimpan data ke database.', 500);
     }
     public function getAllAttendanceHistory(){
         $model = new AttendanceModel();

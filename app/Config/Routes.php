@@ -8,33 +8,38 @@ use CodeIgniter\Router\RouteCollection;
 $routes->get('/', 'Home::index');
 
 // Grup untuk semua rute API agar lebih terorganisir
-$routes->group('api', function ($routes) {
-    // Rute Auth
-    $routes->post('auth/login', 'api\Auth::login');
-
-    // Rute Users
-    $routes->get('users', 'api\Users::index');
-    $routes->get('users/(:num)', 'api\Users::show/$1');
-    $routes->post('users/upload/(:num)', 'api\Users::uploadProfilePicture/$1');
-
-    // Rute Attendance
-    $routes->post('attendance/checkin', 'api\AttendanceController::checkin');
-    $routes->post('attendance/checkout', 'api\AttendanceController::checkout');
-    $routes->get('attendance/history/(:num)', 'api\AttendanceController::history/$1');
+$routes->group('api', ['namespace' => 'App\Controllers\api'], function ($routes) {
     
-    $routes->post('attendance/validate-wfo-ip', 'api\AttendanceController::validateWfoIp');
+    // --- Rute Publik & Pegawai ---
+    $routes->post('auth/login', 'Auth::login');
 
-    // Rute Overtime
-    $routes->post('overtime/submit', 'api\OvertimeController::submit');
-    $routes->get('overtime/history/(:num)', 'api\OvertimeController::history/$1');
+    $routes->get('users', 'Users::index');
+    $routes->get('users/(:num)', 'Users::show/$1');
+    $routes->post('users/upload/(:num)', 'Users::uploadProfilePicture/$1');
 
-    // Rute Admin
-    $routes->get('admin/employees', 'api\AdminController::getAllEmployees');
-    $routes->put('admin/employees/update_role/(:num)', 'api\AdminController::updateUserRole/$1');
-    $routes->get('admin/dashboard-summary', 'api\AdminController::dashboardSummary');
-    $routes->post('admin/employees', 'api\AdminController::createEmployee'); // Tambah Pegawai
-    $routes->put('admin/employees/(:num)', 'api\AdminController::updateEmployee/$1'); // Edit Pegawai
-    $routes->get('admin/attendance-history', 'api\AdminController::getAllAttendanceHistory'); // Riwayat Absensi Semua User
-    $routes->get('admin/overtime-history', 'api\AdminController::getAllOvertimeHistory'); // Riwayat Lembur Semua User
-    $routes->put('overtime/status/(:num)', 'api\AdminController::updateOvertimeStatus/$1'); // Update Status Lembur
+    $routes->post('attendance/checkin', 'AttendanceController::checkin');
+    $routes->post('attendance/checkout', 'AttendanceController::checkout');
+    $routes->get('attendance/history/(:num)', 'AttendanceController::history/$1');
+    $routes->post('attendance/validate-wfo-ip', 'AttendanceController::validateWfoIp');
+
+    $routes->post('overtime/submit', 'OvertimeController::submit');
+    $routes->get('overtime/history/(:num)', 'OvertimeController::history/$1');
+
+    // --- Grup Khusus untuk Rute Admin ---
+    $routes->group('admin', function ($routes) {
+        // Rute untuk mengelola data pegawai (Employees)
+        $routes->get('employees', 'AdminController::getAllEmployees');
+        $routes->post('employees', 'AdminController::createEmployee');
+        $routes->put('employees/(:num)', 'AdminController::updateEmployee/$1');
+        // Catatan: Rute 'update_role' dihapus karena sudah ditangani oleh 'updateEmployee'.
+
+        // Rute untuk dasbor dan riwayat
+        $routes->get('dashboard-summary', 'AdminController::dashboardSummary');
+        $routes->get('attendance-history', 'AdminController::getAllAttendanceHistory');
+        $routes->get('overtime-history', 'AdminController::getAllOvertimeHistory');
+        
+        // Rute untuk mengelola pengajuan lembur
+        $routes->put('overtime/status/(:num)', 'AdminController::updateOvertimeStatus/$1');
+    });
+
 });

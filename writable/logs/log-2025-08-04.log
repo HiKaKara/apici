@@ -1,0 +1,11 @@
+CRITICAL - 2025-08-04 12:36:35 --> ErrorException: Attempt to read property "password" on array
+[Method: POST, Route: api/auth/login]
+in APPPATH\Controllers\api\Auth.php on line 28.
+ 1 APPPATH\Controllers\api\Auth.php(28): CodeIgniter\Debug\Exceptions->errorHandler(2, 'Attempt to read property "password" on array', 'E:\\laragon\\www\\apici\\app\\Controllers\\api\\Auth.php', 28)
+ 2 SYSTEMPATH\CodeIgniter.php(933): App\Controllers\api\Auth->login()
+ 3 SYSTEMPATH\CodeIgniter.php(507): CodeIgniter\CodeIgniter->runController(Object(App\Controllers\api\Auth))
+ 4 SYSTEMPATH\CodeIgniter.php(354): CodeIgniter\CodeIgniter->handleRequest(null, Object(Config\Cache), false)
+ 5 SYSTEMPATH\Boot.php(334): CodeIgniter\CodeIgniter->run()
+ 6 SYSTEMPATH\Boot.php(67): CodeIgniter\Boot::runCodeIgniter(Object(CodeIgniter\CodeIgniter))
+ 7 FCPATH\index.php(59): CodeIgniter\Boot::bootWeb(Object(Config\Paths))
+ 8 SYSTEMPATH\rewrite.php(44): require_once('E:\\laragon\\www\\apici\\public\\index.php')

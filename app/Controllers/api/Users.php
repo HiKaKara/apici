@@ -7,19 +7,12 @@ use CodeIgniter\RESTful\ResourceController;
 class Users extends ResourceController
 {
     protected $modelName = 'App\Models\UserModel';
-    protected $format    = 'json'; // Otomatis response dalam format JSON
+    protected $format    = 'json'; 
 
-    /**
-     * Mengembalikan semua data pengguna.
-     * Endpoint: GET /api/users
-     */
-    public function index()
-    {
-        // Ambil semua data dari model dan kirim sebagai response
+    public function index()    {
         return $this->respond($this->model->findAll());
     }
-    public function show($id = null)
-{
+    public function show($id = null){
     $model = new \App\Models\UserModel();
     $data = $model->find($id);
     if ($data) {
@@ -27,8 +20,7 @@ class Users extends ResourceController
     }
     return $this->failNotFound('Pengguna dengan ID ' . $id . ' tidak ditemukan.');
 }
-public function uploadProfilePicture($id = null)
-{
+public function uploadProfilePicture($id = null){
     $model = new \App\Models\UserModel();
     $user = $model->find($id);
 
@@ -55,5 +47,37 @@ public function uploadProfilePicture($id = null)
         'message' => 'Foto profil berhasil diperbarui.',
         'file_path' => '/uploads/avatars/' . $newName 
     ]);
+}
+public function create(){
+    // Gunakan model yang sudah didefinisikan di properti kelas
+    $data = $this->request->getJSON(true);
+    if (empty($data)) {
+        return $this->fail('Data JSON yang dikirim kosong atau tidak valid.', 400);
+    }
+
+    // Definisikan aturan validasi
+    $rules = [
+        'name'     => 'required',
+        'email'    => 'required|valid_email|is_unique[users.email]',
+        'password' => 'required|min_length[6]',
+        'role'     => 'required|in_list[Admin,Pegawai]',
+        'position' => 'required',
+    ];
+
+    // Lakukan validasi
+    if (!$this->validateData($data, $rules)) {
+        return $this->fail($this->validator->getErrors(), 400);
+    }
+
+    // Hash password
+    $data['password'] = password_hash($data['password'], PASSWORD_DEFAULT);
+
+    // Coba insert data
+    if ($this->model->insert($data)) {
+        return $this->respondCreated(['status' => 201, 'messages' => ['success' => 'User created successfully']]);
+    }
+
+    // Jika gagal, kembalikan error dari model
+    return $this->fail($this->model->errors());
 }
 }

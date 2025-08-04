@@ -20,7 +20,13 @@ class Office extends BaseConfig
         '192.168.1.1/24',
         '10.14.72.1/22',
         '192.168.137.77',
-        '127.0.0.1',      // IP untuk development di localhost
-        '::1'             // IP untuk development di localhost (IPv6)
+        '10.79.168.1/24',
+        '10.79.168.188',
+        '10.79.168.49',
+        '140.213.128.80',
+        '127.0.0.1',        // IP untuk development di localhost
+        '::1',              // IP untuk development di localhost (IPv6)
+        '10.14.72.135',     // IP Wifi yang Anda gunakan
+        '10.0.2.2'          // IP default untuk Android Emulator
     ];
 }

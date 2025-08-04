@@ -10,8 +10,7 @@ class Auth extends ResourceController
     protected $modelName = 'App\Models\UserModel';
     protected $format    = 'json';
 
-    public function login()
-    {
+    public function login(){
         $data = $this->request->getJSON();
         $email = $data->email ?? null;
         $password = $data->password ?? null;
@@ -23,19 +22,11 @@ class Auth extends ResourceController
         // Cari pengguna berdasarkan email
         $user = $this->model->where('email', $email)->first();
 
-        // Jika pengguna tidak ditemukan
-        if (!$user) {
-            return $this->failNotFound('Email tidak ditemukan.');
+        if (!$user || !password_verify($password, $user['password'])) {
+            return $this->failUnauthorized('Email atau password salah');
         }
 
-        // --- PERBAIKAN UTAMA ADA DI SINI ---
-        // Verifikasi password yang diinput dengan hash di database
-        if (!password_verify($password, $user['password'])) {
-            return $this->fail('Password yang Anda masukkan salah.', 401); // 401 Unauthorized
-        }
-        
-        // Hapus password dari data yang dikirim kembali demi keamanan
-        unset($user['password']);
+        unset($user->password);
 
         // Jika berhasil
         return $this->respond([
